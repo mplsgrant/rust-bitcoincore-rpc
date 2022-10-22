@@ -271,22 +271,39 @@ pub trait RpcApi: Sized {
 
     fn create_wallet(
         &self,
-        wallet: &str,
+        wallet_name: &str,
         disable_private_keys: Option<bool>,
         blank: Option<bool>,
         passphrase: Option<&str>,
         avoid_reuse: Option<bool>,
+        descriptors: Option<bool>,
+        load_on_startup: Option<bool>,
+        external_signer: Option<bool>,
     ) -> Result<json::LoadWalletResult> {
         let mut args = [
-            wallet.into(),
+            wallet_name.into(),
             opt_into_json(disable_private_keys)?,
             opt_into_json(blank)?,
             opt_into_json(passphrase)?,
             opt_into_json(avoid_reuse)?,
+            opt_into_json(descriptors)?,
+            opt_into_json(load_on_startup)?,
+            opt_into_json(external_signer)?,
         ];
         self.call(
             "createwallet",
-            handle_defaults(&mut args, &[false.into(), false.into(), into_json("")?, false.into()]),
+            handle_defaults(
+                &mut args,
+                &[
+                    false.into(),
+                    false.into(),
+                    into_json("")?,
+                    false.into(),
+                    true.into(),
+                    false.into(),
+                    false.into(),
+                ],
+            ),
         )
     }
 
@@ -656,6 +673,19 @@ pub trait RpcApi: Sized {
         }
         let mut args = [json_requests.into(), opt_into_json(options)?];
         self.call("importmulti", handle_defaults(&mut args, &[null()]))
+    }
+
+    fn import_descriptors(
+        &self,
+        requests: &[json::ImportDescriptor],
+    ) -> Result<Vec<json::ImportDescriptorResult>> {
+        let mut json_requests = Vec::with_capacity(requests.len());
+        for req in requests {
+            json_requests.push(serde_json::to_value(req)?);
+        }
+        let mut args = [json_requests.into()];
+        let descriptors = handle_defaults(&mut args, &[false.into()]);
+        self.call("importdescriptors", descriptors)
     }
 
     fn set_label(&self, address: &Address, label: &str) -> Result<()> {

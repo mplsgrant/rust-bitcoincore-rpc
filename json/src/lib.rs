@@ -169,6 +169,7 @@ pub struct GetWalletInfoResult {
     pub private_keys_enabled: bool,
     pub avoid_reuse: Option<bool>,
     pub scanning: Option<ScanningDetails>,
+    pub descriptors: Option<bool>,
 }
 
 #[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
@@ -1151,6 +1152,22 @@ pub struct ImportMultiRequest<'a> {
     pub keypool: Option<bool>,
 }
 
+#[derive(Clone, PartialEq, Eq, Debug, Default, Serialize)]
+pub struct ImportDescriptor<'a> {
+    pub desc: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub active: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub range: Option<(usize, usize)>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next_index: Option<usize>,
+    pub timestamp: ImportMultiRescanSince,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub internal: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<&'a str>,
+}
+
 #[derive(Clone, PartialEq, Eq, Debug, Default, Deserialize, Serialize)]
 pub struct ImportMultiOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1244,6 +1261,20 @@ pub struct ImportMultiResult {
     #[serde(default)]
     pub warnings: Vec<String>,
     pub error: Option<ImportMultiResultError>,
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+pub struct ImportDescriptorResultError {
+    pub code: i64,
+    pub message: String,
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+pub struct ImportDescriptorResult {
+    pub success: bool,
+    #[serde(default)]
+    pub warnings: Vec<String>,
+    pub error: Option<ImportDescriptorResultError>,
 }
 
 /// Progress toward rejecting pre-softfork blocks
