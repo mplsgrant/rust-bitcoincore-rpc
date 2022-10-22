@@ -292,7 +292,18 @@ pub trait RpcApi: Sized {
         ];
         self.call(
             "createwallet",
-            handle_defaults(&mut args, &[false.into(), false.into(), into_json("")?, false.into(), true.into(), false.into(), false.into()]),
+            handle_defaults(
+                &mut args,
+                &[
+                    false.into(),
+                    false.into(),
+                    into_json("")?,
+                    false.into(),
+                    true.into(),
+                    false.into(),
+                    false.into(),
+                ],
+            ),
         )
     }
 
@@ -659,6 +670,19 @@ pub trait RpcApi: Sized {
         }
         let mut args = [json_requests.into(), opt_into_json(options)?];
         self.call("importmulti", handle_defaults(&mut args, &[null()]))
+    }
+
+    fn import_descriptors(
+        &self,
+        requests: &[json::ImportDescriptor],
+    ) -> Result<Vec<json::ImportDescriptorResult>> {
+        let mut json_requests = Vec::with_capacity(requests.len());
+        for req in requests {
+            json_requests.push(serde_json::to_value(req)?);
+        }
+        let mut args = [json_requests.into()];
+        let descriptors = handle_defaults(&mut args, &[false.into()]);
+        self.call("importdescriptors", descriptors)
     }
 
     fn set_label(&self, address: &Address, label: &str) -> Result<()> {
