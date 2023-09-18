@@ -541,6 +541,19 @@ pub trait RpcApi: Sized {
         )?)
     }
 
+    fn get_received_by_label(
+        &self,
+        label: &str,
+        minconf: Option<u32>,
+        include_immature_coinbase: Option<bool>,
+    ) -> Result<Amount> {
+        let mut args =
+            [label.into(), opt_into_json(minconf)?, opt_into_json(include_immature_coinbase)?];
+        Ok(Amount::from_btc(
+            self.call("getreceivedbylabel", handle_defaults(&mut args, &[null()]))?,
+        )?)
+    }
+
     fn get_transaction(
         &self,
         txid: &bitcoin::Txid,
