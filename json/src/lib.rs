@@ -219,6 +219,32 @@ pub struct GetBlockResult {
 
 #[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GetBlockTxsResult {
+    pub hash: bitcoin::BlockHash,
+    pub confirmations: i32,
+    pub size: usize,
+    pub strippedsize: Option<usize>,
+    pub weight: usize,
+    pub height: usize,
+    pub version: i32,
+    #[serde(default, with = "crate::serde_hex::opt")]
+    pub version_hex: Option<Vec<u8>>,
+    pub merkleroot: bitcoin::hash_types::TxMerkleNode,
+    pub tx: Vec<GetRawTransactionResult>,
+    pub time: usize,
+    pub mediantime: Option<usize>,
+    pub nonce: u32,
+    pub bits: String,
+    pub difficulty: f64,
+    #[serde(with = "crate::serde_hex")]
+    pub chainwork: Vec<u8>,
+    pub n_tx: usize,
+    pub previousblockhash: Option<bitcoin::BlockHash>,
+    pub nextblockhash: Option<bitcoin::BlockHash>,
+}
+
+#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetBlockHeaderResult {
     pub hash: bitcoin::BlockHash,
     pub confirmations: i32,
